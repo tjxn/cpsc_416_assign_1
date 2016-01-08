@@ -1,5 +1,5 @@
 <h1 align="center"> 
-	CPSC 416 - Distributed Systems: Assignment 1 
+	CPSC 416 - Distributed Systems: Assignment 1
 </h1>
 
 <h2 align="center"> 
