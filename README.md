@@ -1,5 +1,5 @@
 # CPSC 416 - Distributed Systems: Assignment 1
-## UBC
+## University of British Columbia
 
 High-level protocol description
 
@@ -16,9 +16,9 @@ The client is run knowing the UDP IP:port of the aserver and an int64 secret val
 1. the client sends a UDP message with arbitrary payload to the aserver
 2. the client receives a NonceMessage reply containing an int64 nonce from the aserver
 3. the client computes an MD5 hash of the (nonce + secret) value and sends this value as a hex 
-	string to the aserver as part of a HashMessage
+		string to the aserver as part of a HashMessage
 4. the aserver verifies the received hash and replies with a FortuneInfoMessage that contains information 
-	for contacting fserver (its UDP IP:port and an int64 fortune nonce to use when connecting to it)
+		for contacting fserver (its UDP IP:port and an int64 fortune nonce to use when connecting to it)
 5. the client sends a FortuneReqMessage to fserver
 6. the client receives a FortuneMessage from the fserver
 7. the client prints out the received fortune string as the last thing before exiting on a new newline-terminated line
@@ -54,7 +54,7 @@ Your program must implement the following command line usage:
 go run client.go [local UDP ip:port] [aserver ip:port] [secret]
 
 - [local UDP ip:port] : local address that the client uses to connect to both the aserver and the fserver 
-	(i.e., the external IP of the machine the client is running on)
+		(i.e., the external IP of the machine the client is running on)
 - [aserver UDP ip:port] : the UDP address on which the aserver receives new client connections
 - [secret] : an int64 secret
 
