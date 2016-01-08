@@ -24,8 +24,10 @@ The client is run knowing the UDP IP:port of the aserver and an int64 secret val
 7. the client prints out the received fortune string as the last thing before exiting on a new newline-terminated line
 8. The communication steps in this protocol are illustrated in the following space-time diagram:
 
-![Space-Time Diagram](/assign1-proto.jpg)
- 
+<p align="center">
+	<img alt="Space-Time Diagram" src="/assign1-proto.jpg">
+</p>
+
 Protocol corner-cases
 
 - The aserver and fserver expect the client to use the same UDP IP:port throughout the protocol. 
