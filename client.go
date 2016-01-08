@@ -6,6 +6,7 @@ $ go run client.go [local UDP ip:port] [aserver UDP ip:port] [secret]
 
 Example:
 $ go run client.go 127.0.0.1:2020 198.162.52.206:1999
+
 */
 
 package main
@@ -106,7 +107,8 @@ func readMessage(conn *net.UDPConn) []byte {
 	return buffer
 }
 
-func parseNonce(segment []byte) NonceMessage {
+func parseNonceMessage(segment []byte) NonceMessage {
+
 	var jsonSection []byte = segment[:29]
 
 	nonce := NonceMessage{}
@@ -140,7 +142,7 @@ func computeMd5(secret string, nounce int64) string {
 	return hex.EncodeToString(hash)
 }
 
-func createHashMessage(secret string, nounce NonceMessage) []byte {
+func createHashMessage(secret string, nonce NonceMessage) []byte {
 	var hashString string = computeMd5(secret, nonce.Nonce)
 
 	hash := &HashMessage{
@@ -152,13 +154,31 @@ func createHashMessage(secret string, nounce NonceMessage) []byte {
 	return packet
 }
 
+func parseFortuneInfoMessage(message []byte) FortuneInfoMessage {
+	var jsonSection []byte = message[:75]
+
+	fortuneInfo := FortuneInfoMessage{}
+	err := json.Unmarshal(jsonSection, &fortuneInfo)
+
+	if err != nil {
+		fmt.Printf("Error Json: %s\n", err)
+	}
+
+	return fortuneInfo
+
+}
+
 // Main workhorse method.
 func main() {
 
 	// Arguments
-	var localAddr string = os.Args[1]
-	var remoteAddr string = os.Args[2]
-	var secret string = os.Args[3]
+	//var localAddr string = os.Args[1]
+	//var remoteAddr string = os.Args[2]
+	//var secret string = os.Args[3]
+
+	var localAddr string = "127.0.0.1:70223"
+	var remoteAddr string = "198.162.52.206:1999"
+	var secret string = "2016"
 
 	var conn *net.UDPConn = openConnection(localAddr, remoteAddr)
 
@@ -166,15 +186,20 @@ func main() {
 
 	var message []byte = readMessage(conn)
 
-	var nonce NonceMessage = parseNonce(message)
+	var nonce NonceMessage = parseNonceMessage(message)
 
-	var packet []byte = createHashMessage()
+	var packet []byte = createHashMessage(secret, nonce)
 
 	sendBytes(conn, packet)
 
-	response := readMessage(conn)
+	message = readMessage(conn)
 
-	fmt.Printf("%s\n", response)
+	var fortuneinfo FortuneInfoMessage = parseFortuneInfoMessage(message)
+
+	conn.Close()
+
+	conn = openConnection(localAddr, fortuneinfo.FortuneServer)
+
 	conn.Close()
 
 }
