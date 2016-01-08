@@ -87,7 +87,6 @@ func openConnection(localAddr, remoteAddr string) *net.UDPConn {
 	errorCheck(err, "Something has gone wrong in the initial connection")
 
 	return conn
-
 }
 
 func sendString(conn *net.UDPConn, message string) {
@@ -205,7 +204,6 @@ func parseFortuneMessage(message []byte) FortuneMessage {
 	errorCheck(err, "Error in parsing JSON Fortune Message")
 
 	return fortune
-
 }
 
 // Main workhorse method.
@@ -252,5 +250,4 @@ func main() {
 	fmt.Println(fortune.Fortune)
 
 	conn.Close()
-
 }
