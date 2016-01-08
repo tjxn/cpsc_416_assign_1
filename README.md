@@ -24,7 +24,7 @@ The client is run knowing the UDP IP:port of the aserver and an int64 secret val
 7. the client prints out the received fortune string as the last thing before exiting on a new newline-terminated line
 8. The communication steps in this protocol are illustrated in the following space-time diagram:
 
-![Space-Time Diagram](/tjxn/cpsc_416_assign_1/assign1-proto.jpg)
+![Space-Time Diagram](/tjxn/cpsc_416_assign_1/blob/master/assign1-proto.jpg)
  
 Protocol corner-cases
 
