@@ -1,12 +1,14 @@
 <h1 align="center"> 
-CPSC 416 - Distributed Systems: Assignment 1 
+	CPSC 416 - Distributed Systems: Assignment 1 
 </h1>
 
 <h2 align="center"> 
-University of British Columbia
+	University of British Columbia
 </h2>
 
-High-level protocol description
+<h3>
+	<b>High-level protocol description</b>
+</h3>
 
 There are three kinds of nodes in the system: a client (that you will implement), an authentication server (aserver) 
 to verify a client's credentials, and a fortune server (fserver) that returns a fortune string to the client. 
@@ -33,7 +35,10 @@ The client is run knowing the UDP IP:port of the aserver and an int64 secret val
 	<img alt="Space-Time Diagram" src="/assign1-proto.jpg">
 </p>
 
-Protocol corner-cases
+
+<h3>
+	<b>Protocol corner-cases</b>
+</h3>
 
 - The aserver and fserver expect the client to use the same UDP IP:port throughout the protocol. 
 - An ErrMessage will be generated if the client uses different addresses.
@@ -43,8 +48,9 @@ Protocol corner-cases
 - The fserver will reply with an ErrMessage in case an incorrect fortune nonce is supplied in the FortuneReqMessage.
 - All messages fit into 1024 bytes.
 
-
-Implementation requirements
+<h3>
+	<b>Implementation requirements</b>
+</h3>
 
 - The client code must be runnable on CS ugrad machines and be compatible with Go version 1.4.3.
 - Your code does not need to check or handle ErrMessage replies from the aserver or fserver. However, 
@@ -54,8 +60,9 @@ Implementation requirements
 - Your solution can only use standard library Go packages.
 - Your solution code must be Gofmt'd using gofmt.
 
-
-Solution spec
+<h3>
+	<b>Solution spec</b>
+</h3>
 
 Write a single go program called client.go that acts as a client in the protocol described above. 
 Your program must implement the following command line usage:
