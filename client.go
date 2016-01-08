@@ -59,8 +59,8 @@ type FortuneMessage struct {
 	Fortune string
 }
 
-// Open a UDP connection to a given ip address and port
-// Will Exit the program with an error code of 1 if connection fails
+/////////// Helper Functions:
+
 func openConnection(localAddr, remoteAddr string) *net.UDPConn {
 
 	_, port, _ := net.SplitHostPort(localAddr)
@@ -117,18 +117,6 @@ func readMessage(conn *net.UDPConn) []byte {
 	return buffer
 }
 
-func parseNonceMessage(segment []byte) NonceMessage {
-
-	nonce := NonceMessage{}
-	err := json.Unmarshal(segment, &nonce)
-
-	if err != nil {
-		fmt.Printf("Error Json Nonce: %s\n", err)
-	}
-
-	return nonce
-}
-
 func printConsole(message string) {
 	fmt.Printf("%s\n", message)
 }
@@ -147,6 +135,18 @@ func computeMd5(secret string, nounce int64) string {
 	hash := hasher.Sum(nil)
 
 	return hex.EncodeToString(hash)
+}
+
+func parseNonceMessage(segment []byte) NonceMessage {
+
+	nonce := NonceMessage{}
+	err := json.Unmarshal(segment, &nonce)
+
+	if err != nil {
+		fmt.Printf("Error Json Nonce: %s\n", err)
+	}
+
+	return nonce
 }
 
 func createHashMessage(secret string, nonce NonceMessage) []byte {
@@ -202,13 +202,14 @@ func parseFortuneMessage(message []byte) FortuneMessage {
 func main() {
 
 	// Arguments
-	//var localAddr string = os.Args[1]
-	//var remoteAddr string = os.Args[2]
-	//var secret string = os.Args[3]
+	var localAddr string = os.Args[1]
+	var remoteAddr string = os.Args[2]
+	var secret string = os.Args[3]
 
-	var localAddr string = "127.0.0.1:2020"
-	var remoteAddr string = "198.162.52.206:1999"
-	var secret string = "2016"
+	// Hardcoded Arguments for Easier Debugging
+	//var localAddr string = "127.0.0.1:2020"
+	//var remoteAddr string = "198.162.52.206:1999"
+	//var secret string = "2016"
 
 	var conn *net.UDPConn = openConnection(localAddr, remoteAddr)
 
@@ -228,13 +229,13 @@ func main() {
 
 	conn.Close()
 
-	conn2 := openConnection(localAddr, fortuneinfo.FortuneServer)
+	conn = openConnection(localAddr, fortuneinfo.FortuneServer)
 
 	packet = createFortuneReqMessage(fortuneinfo.FortuneNonce)
 
-	sendBytes(conn2, packet)
+	sendBytes(conn, packet)
 
-	message = readMessage(conn2)
+	message = readMessage(conn)
 
 	var fortune FortuneMessage = parseFortuneMessage(message)
 
