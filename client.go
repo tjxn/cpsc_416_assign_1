@@ -33,7 +33,7 @@ type ErrMessage struct {
 
 // Message containing a nonce from auth-server.
 type NonceMessage struct {
-	Nonce int64 `json:"Nonce"`
+	Nonce int64
 }
 
 // Message containing an MD5 hash from client to auth-server.
@@ -63,15 +63,30 @@ type FortuneMessage struct {
 // Will Exit the program with an error code of 1 if connection fails
 func openConnection(localAddr, remoteAddr string) *net.UDPConn {
 
-	laddr, _ := net.ResolveUDPAddr("udp", localAddr)
-	raddr, _ := net.ResolveUDPAddr("udp", remoteAddr)
+	_, port, _ := net.SplitHostPort(localAddr)
+	port = ":" + port
 
-	// Open connection to aServer
+	laddr, err := net.ResolveUDPAddr("udp", port)
+
+	if err != nil {
+		fmt.Println("Something is Wrong with the given local address\n")
+		fmt.Printf("%s\n", err)
+		os.Exit(1)
+	}
+
+	raddr, err := net.ResolveUDPAddr("udp", remoteAddr)
+
+	if err != nil {
+		fmt.Println("Something is Wrong with the given remote address\n")
+		fmt.Printf("%s\n", err)
+		os.Exit(1)
+	}
+
 	conn, err := net.DialUDP("udp", laddr, raddr)
 
-	// Check if connection was successful
 	if err != nil {
 		fmt.Println("Something has gone wrong in the initial connection\n")
+		fmt.Printf("%s\n", err)
 		os.Exit(1)
 	}
 
@@ -79,51 +94,43 @@ func openConnection(localAddr, remoteAddr string) *net.UDPConn {
 
 }
 
-// Send a String using an existing connection to a Server
 func sendString(conn *net.UDPConn, message string) {
-
-	// Send a message to a Server
 
 	buffer := []byte(message)
 	conn.Write(buffer)
 }
 
-// Send bytes using an existing connection to a Server
 func sendBytes(conn *net.UDPConn, message []byte) {
 
 	conn.Write(message)
 
 }
 
-// read a String using an existing connection to a Server
-// If read fails then Exits wit error code 2
-// returns the read message
 func readMessage(conn *net.UDPConn) []byte {
 
 	buffer := make([]byte, 1024)
 
-	conn.ReadFromUDP(buffer)
+	bytesRead, _, _ := conn.ReadFromUDP(buffer)
+
+	buffer = buffer[:bytesRead]
 
 	return buffer
 }
 
 func parseNonceMessage(segment []byte) NonceMessage {
 
-	var jsonSection []byte = segment[:29]
-
 	nonce := NonceMessage{}
-	err := json.Unmarshal([]byte(jsonSection), &nonce)
+	err := json.Unmarshal(segment, &nonce)
 
 	if err != nil {
-		fmt.Printf("Error Json: %s\n", err)
+		fmt.Printf("Error Json Nonce: %s\n", err)
 	}
 
 	return nonce
 }
 
-// Prints the given message on the console
 func printConsole(message string) {
-	fmt.Println(message)
+	fmt.Printf("%s\n", message)
 }
 
 func computeMd5(secret string, nounce int64) string {
@@ -155,16 +162,39 @@ func createHashMessage(secret string, nonce NonceMessage) []byte {
 }
 
 func parseFortuneInfoMessage(message []byte) FortuneInfoMessage {
-	var jsonSection []byte = message[:75]
 
 	fortuneInfo := FortuneInfoMessage{}
-	err := json.Unmarshal(jsonSection, &fortuneInfo)
+	err := json.Unmarshal(message, &fortuneInfo)
 
 	if err != nil {
-		fmt.Printf("Error Json: %s\n", err)
+		fmt.Printf("Error Json Fortune Info: %s\n", err)
 	}
 
 	return fortuneInfo
+
+}
+
+func createFortuneReqMessage(nonce int64) []byte {
+
+	fortuneReq := &FortuneReqMessage{
+		FortuneNonce: nonce,
+	}
+
+	packet, _ := json.Marshal(fortuneReq)
+
+	return packet
+}
+
+func parseFortuneMessage(message []byte) FortuneMessage {
+
+	fortune := FortuneMessage{}
+	err := json.Unmarshal(message, &fortune)
+
+	if err != nil {
+		fmt.Printf("Error Json Fortune: %s\n", err)
+	}
+
+	return fortune
 
 }
 
@@ -176,7 +206,7 @@ func main() {
 	//var remoteAddr string = os.Args[2]
 	//var secret string = os.Args[3]
 
-	var localAddr string = "127.0.0.1:70223"
+	var localAddr string = "127.0.0.1:2020"
 	var remoteAddr string = "198.162.52.206:1999"
 	var secret string = "2016"
 
@@ -198,7 +228,17 @@ func main() {
 
 	conn.Close()
 
-	conn = openConnection(localAddr, fortuneinfo.FortuneServer)
+	conn2 := openConnection(localAddr, fortuneinfo.FortuneServer)
+
+	packet = createFortuneReqMessage(fortuneinfo.FortuneNonce)
+
+	sendBytes(conn2, packet)
+
+	message = readMessage(conn2)
+
+	var fortune FortuneMessage = parseFortuneMessage(message)
+
+	fmt.Println(fortune.Fortune)
 
 	conn.Close()
 
