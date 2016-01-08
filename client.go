@@ -61,34 +61,31 @@ type FortuneMessage struct {
 
 /////////// Helper Functions:
 
+func errorCheck(err error, message string) {
+
+	if err != nil {
+		fmt.Println(message)
+		fmt.Printf("%s\n", err)
+		os.Exit(1)
+	}
+
+}
+
 func openConnection(localAddr, remoteAddr string) *net.UDPConn {
 
-	_, port, _ := net.SplitHostPort(localAddr)
+	_, port, err := net.SplitHostPort(localAddr)
+	errorCheck(err, "Something is Wrong with the given local address format")
+
 	port = ":" + port
 
 	laddr, err := net.ResolveUDPAddr("udp", port)
-
-	if err != nil {
-		fmt.Println("Something is Wrong with the given local address\n")
-		fmt.Printf("%s\n", err)
-		os.Exit(1)
-	}
+	errorCheck(err, "Something is Wrong with the given local address")
 
 	raddr, err := net.ResolveUDPAddr("udp", remoteAddr)
-
-	if err != nil {
-		fmt.Println("Something is Wrong with the given remote address\n")
-		fmt.Printf("%s\n", err)
-		os.Exit(1)
-	}
+	errorCheck(err, "Something is Wrong with the given remote address")
 
 	conn, err := net.DialUDP("udp", laddr, raddr)
-
-	if err != nil {
-		fmt.Println("Something has gone wrong in the initial connection\n")
-		fmt.Printf("%s\n", err)
-		os.Exit(1)
-	}
+	errorCheck(err, "Something has gone wrong in the initial connection")
 
 	return conn
 
@@ -97,12 +94,14 @@ func openConnection(localAddr, remoteAddr string) *net.UDPConn {
 func sendString(conn *net.UDPConn, message string) {
 
 	buffer := []byte(message)
-	conn.Write(buffer)
+	_, err := conn.Write(buffer)
+	errorCheck(err, "Problem with Sending String: "+message)
 }
 
 func sendBytes(conn *net.UDPConn, message []byte) {
 
-	conn.Write(message)
+	_, err := conn.Write(message)
+	errorCheck(err, "Problem with Sending Byte Slice")
 
 }
 
@@ -110,19 +109,17 @@ func readMessage(conn *net.UDPConn) []byte {
 
 	buffer := make([]byte, 1024)
 
-	bytesRead, _, _ := conn.ReadFromUDP(buffer)
+	bytesRead, _, err := conn.ReadFromUDP(buffer)
+	errorCheck(err, "Problem with Reading UDP Packet")
 
 	buffer = buffer[:bytesRead]
 
 	return buffer
 }
 
-func printConsole(message string) {
-	fmt.Printf("%s\n", message)
-}
-
 func computeMd5(secret string, nounce int64) string {
-	secretNum, _ := strconv.ParseInt(secret, 10, 64)
+	secretNum, err := strconv.ParseInt(secret, 10, 64)
+	errorCheck(err, "Problem with the given Secret: "+secret)
 	var toHash int64 = secretNum + nounce
 
 	buf := make([]byte, 64)
@@ -141,10 +138,7 @@ func parseNonceMessage(segment []byte) NonceMessage {
 
 	nonce := NonceMessage{}
 	err := json.Unmarshal(segment, &nonce)
-
-	if err != nil {
-		fmt.Printf("Error Json Nonce: %s\n", err)
-	}
+	errorCheck(err, "Error in parsing JSON Nonce Message")
 
 	return nonce
 }
@@ -156,7 +150,8 @@ func createHashMessage(secret string, nonce NonceMessage) []byte {
 		Hash: hashString,
 	}
 
-	packet, _ := json.Marshal(hash)
+	packet, err := json.Marshal(hash)
+	errorCheck(err, "Error in creating JSON Hash Message")
 
 	return packet
 }
@@ -164,11 +159,9 @@ func createHashMessage(secret string, nonce NonceMessage) []byte {
 func parseFortuneInfoMessage(message []byte) FortuneInfoMessage {
 
 	fortuneInfo := FortuneInfoMessage{}
-	err := json.Unmarshal(message, &fortuneInfo)
 
-	if err != nil {
-		fmt.Printf("Error Json Fortune Info: %s\n", err)
-	}
+	err := json.Unmarshal(message, &fortuneInfo)
+	errorCheck(err, "Error in parsing JSON Fortune Info Message")
 
 	return fortuneInfo
 
@@ -180,7 +173,8 @@ func createFortuneReqMessage(nonce int64) []byte {
 		FortuneNonce: nonce,
 	}
 
-	packet, _ := json.Marshal(fortuneReq)
+	packet, err := json.Marshal(fortuneReq)
+	errorCheck(err, "Error in creating Fortune Req Message")
 
 	return packet
 }
@@ -188,11 +182,9 @@ func createFortuneReqMessage(nonce int64) []byte {
 func parseFortuneMessage(message []byte) FortuneMessage {
 
 	fortune := FortuneMessage{}
-	err := json.Unmarshal(message, &fortune)
 
-	if err != nil {
-		fmt.Printf("Error Json Fortune: %s\n", err)
-	}
+	err := json.Unmarshal(message, &fortune)
+	errorCheck(err, "Error in parsing JSON Fortune Message")
 
 	return fortune
 
