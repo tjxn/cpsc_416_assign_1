@@ -1,10 +1,10 @@
-<p align="center"> 
-# CPSC 416 - Distributed Systems: Assignment 1 
-</p>
+<h1 align="center"> 
+CPSC 416 - Distributed Systems: Assignment 1 
+</h1>
 
-<p align="center"> 
-## University of British Columbia
-</p>
+<h2 align="center"> 
+University of British Columbia
+</h2>
 
 High-level protocol description
 
