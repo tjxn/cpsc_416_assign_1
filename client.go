@@ -6,7 +6,6 @@ $ go run client.go [local UDP ip:port] [aserver UDP ip:port] [secret]
 
 Example:
 $ go run client.go 127.0.0.1:2020 198.162.52.206:1999
-
 */
 
 package main
