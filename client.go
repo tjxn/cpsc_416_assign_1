@@ -68,7 +68,6 @@ func errorCheck(err error, message string) {
 		fmt.Printf("%s\n", err)
 		os.Exit(1)
 	}
-
 }
 
 func openConnection(localAddr, remoteAddr string) *net.UDPConn {
@@ -117,21 +116,39 @@ func readMessage(conn *net.UDPConn) []byte {
 	return buffer
 }
 
-func computeMd5(secret string, nounce int64) string {
-	secretNum, err := strconv.ParseInt(secret, 10, 64)
-	errorCheck(err, "Problem with the given Secret: "+secret)
-	var toHash int64 = secretNum + nounce
+func convertStringToInt64(toConvert string) int64 {
 
+	converted, err := strconv.ParseInt(toConvert, 10, 64)
+	errorCheck(err, "Problem with the given Secret: "+toConvert)
+
+	return converted
+}
+
+func convertInt64ToByteSlice(num int64) []byte {
 	buf := make([]byte, 64)
 
-	num := binary.PutVarint(buf, toHash)
-	hashByte := buf[:num]
+	bytesRead := binary.PutVarint(buf, num)
+	hashByte := buf[:bytesRead]
+
+	return hashByte
+}
+
+func computeMd5(secret string, nounce int64) []byte {
+	var secretNum int64 = convertStringToInt64(secret)
+
+	var toHash int64 = secretNum + nounce
+
+	var hashByte []byte = convertInt64ToByteSlice(toHash)
 
 	hasher := md5.New()
 	hasher.Write(hashByte)
 	hash := hasher.Sum(nil)
 
-	return hex.EncodeToString(hash)
+	return hash
+}
+
+func convertByteSpliceToHexString(bytes []byte) string {
+	return hex.EncodeToString(bytes)
 }
 
 func parseNonceMessage(segment []byte) NonceMessage {
@@ -144,7 +161,8 @@ func parseNonceMessage(segment []byte) NonceMessage {
 }
 
 func createHashMessage(secret string, nonce NonceMessage) []byte {
-	var hashString string = computeMd5(secret, nonce.Nonce)
+	var hashBytes []byte = computeMd5(secret, nonce.Nonce)
+	var hashString string = convertByteSpliceToHexString(hashBytes)
 
 	hash := &HashMessage{
 		Hash: hashString,
