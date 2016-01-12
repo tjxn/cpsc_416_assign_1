@@ -66,6 +66,7 @@ The client is run knowing the UDP IP:port of the aserver and an int64 secret val
 
 Write a single go program called ``client.go`` that acts as a client in the protocol described above. 
 Your program must implement the following command line usage:
+
 ``go run client.go [local UDP ip:port] [aserver ip:port] [secret]``
 
 - [local UDP ip:port] : local address that the client uses to connect to both the aserver and the fserver 
