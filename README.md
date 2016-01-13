@@ -54,7 +54,7 @@ The client is run knowing the UDP IP:port of the aserver and an int64 secret val
 
 - The client code must be runnable on CS ugrad machines and be compatible with Go version 1.4.3.
 - Your code does not need to check or handle ``ErrMessage`` replies from the aserver or fserver. However, 
-- you may find it useful to check for these replies during debugging.
+	you may find it useful to check for these replies during debugging.
 - Your code may assume that UDP is reliable and not implement any retransmission.
 - You must use UDP and the message types given out in the initial code.
 - Your solution can only use standard library Go packages.
