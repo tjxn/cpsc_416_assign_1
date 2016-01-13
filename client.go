@@ -72,12 +72,7 @@ func errorCheck(err error, message string) {
 
 func openConnection(localAddr, remoteAddr string) *net.UDPConn {
 
-	_, port, err := net.SplitHostPort(localAddr)
-	errorCheck(err, "Something is Wrong with the given local address format")
-
-	port = ":" + port
-
-	laddr, err := net.ResolveUDPAddr("udp", port)
+	laddr, err := net.ResolveUDPAddr("udp", localAddr)
 	errorCheck(err, "Something is Wrong with the given local address")
 
 	raddr, err := net.ResolveUDPAddr("udp", remoteAddr)
@@ -206,8 +201,20 @@ func parseFortuneMessage(message []byte) FortuneMessage {
 	return fortune
 }
 
+func checkArgNum(){
+
+	if(len(os.Args) != 4){
+		fmt.Println("Incorrect number of arguments")
+		fmt.Println("Example:")
+		fmt.Println("$ go run client.go [local UDP ip:port] [aserver ip:port] [secret]")
+		os.Exit(1)
+	}
+}
+
 // Main workhorse method.
 func main() {
+
+	checkArgNum()
 
 	// Arguments
 	var localAddr string = os.Args[1]
