@@ -10,6 +10,8 @@
 	<b>High-level protocol description</b>
 </h3>
 
+This assignment outline comes from the [UBC CPSC 416 course webpage](https://www.cs.ubc.ca/~bestchai/teaching/cs416_2015w2/assign1/index.html).
+
 There are three kinds of nodes in the system: a client (that you will implement), an authentication server (aserver) 
 to verify a client's credentials, and a fortune server (fserver) that returns a fortune string to the client. 
 You will test and debug your solution against running aserver and fserver instances. However, you will not have access 
